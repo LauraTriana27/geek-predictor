@@ -184,6 +184,31 @@ def character_card(profile):
 </div></div>'''
 
 
+def home():
+    st.markdown('<div class="hero"><div class="tag">SOFA · DATA SCIENCE EXPERIENCE</div><h1>¿QUÉ TIPO<br>DE GEEK ERES?</h1><p>La IA quiere descubrirlo.<br>Responde 10 preguntas y descubre qué perfil geek predice nuestro modelo.</p></div>',unsafe_allow_html=True)
+    if st.button("🔮 DESCUBRIR MI TIPO",use_container_width=True,type="primary"):
+        st.session_state.started=True
+        st.rerun()
+
+
+def quiz():
+    i=st.session_state.get("q",0)
+    answers=st.session_state.setdefault("answers",{})
+    st.markdown(f"### Pregunta {i+1} de 10")
+    st.progress((i+1)/10)
+    q,opts=QUESTIONS[i]
+    st.markdown(f'<div class="card"><h2>{q}</h2></div>',unsafe_allow_html=True)
+    choice=st.radio("Selecciona una opción",opts,index=None,key=f"q_{i}",label_visibility="collapsed")
+    if st.button("Siguiente →",use_container_width=True,type="primary",disabled=choice is None):
+        answers[i]=opts.index(choice)
+        if i==9:
+            with st.spinner("🔮 ANALIZANDO TUS RESPUESTAS…"):
+                st.session_state.result_ready=True
+        else:
+            st.session_state.q=i+1
+        st.rerun()
+
+
 def result(df,metrics,best,model,cm):
     values=[st.session_state.answers[i] for i in range(10)]
     x=pd.DataFrame([values],columns=[f"q{i}" for i in range(1,11)])
