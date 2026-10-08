@@ -24,21 +24,44 @@ QUESTIONS=[
 ("¿Qué frase te representa más?",["Una partida más.","Necesito conocer todo el lore.","Yo podría diseñarlo mejor.","Tiene que existir una estrategia.","Quiero saber cómo funciona.","¿Qué habrá después?"])
 ]
 INFO={
-"Gamer":("🎮","PLAYER 01","Te mueven los retos, la competencia y esa sensación de que una partida más puede convertirse en una aventura épica.",["Competitivo","Persistente","Orientado al reto"]),
-"Lore Master":("🧙","LORE ARCHIVIST","No te basta con vivir una historia: quieres entender su universo, personajes, teorías y cada detalle escondido.",["Curioso","Narrativo","Detallista"]),
-"Creador":("🎨","CREATIVE MODE","Tu lugar favorito es donde una idea puede convertirse en algo que puedas diseñar, construir, editar o personalizar.",["Creativo","Expresivo","Visual"]),
-"Estratega":("🧩","TACTICAL MIND","Antes de lanzarte, analizas. Te encantan los puzzles, las decisiones difíciles y encontrar la jugada que nadie vio.",["Analítico","Planificador","Resolutivo"]),
-"Tech Geek":("🤖","SYSTEM EXPLORER","Si algo funciona, quieres saber por qué. Tecnología, IA, programación y gadgets despiertan tu curiosidad.",["Curioso","Lógico","Explorador tech"]),
-"Explorador":("🌌","DISCOVERY MODE","Tu superpoder es la curiosidad. Te emociona probar cosas nuevas, descubrir comunidades y entrar en mundos que todavía no conoces.",["Curioso","Aventurero","Flexible"])
+"Gamer":("🎮","PLAYER 01","Kirito · Sword Art Online","Te mueven los retos, la competencia y la emoción de superar una partida difícil.",["Competitivo","Persistente","Orientado al reto"]),
+"Lore Master":("🧙","LORE ARCHIVIST","Sōsuke Aizen · Bleach","No te basta con conocer una historia: quieres entender su universo, sus personajes y cada detalle escondido.",["Curioso","Narrativo","Detallista"]),
+"Creador":("🎨","CREATIVE MODE","Father · Fullmetal Alchemist","Transformas ideas en posibilidades y te atraen la creación, la experimentación y construir algo desde cero.",["Creativo","Experimental","Visionario"]),
+"Estratega":("🧩","TACTICAL MIND","Loid Forger · Spy × Family","Antes de actuar analizas. Te gustan los planes, las decisiones difíciles y encontrar la jugada que nadie vio.",["Analítico","Planificador","Resolutivo"]),
+"Tech Geek":("🤖","SYSTEM EXPLORER","Mei Hatsume · My Hero Academia","Si algo funciona, quieres saber por qué. Tecnología, inventos, IA y gadgets despiertan tu curiosidad.",["Inventivo","Lógico","Explorador tech"]),
+"Explorador":("🌌","DISCOVERY MODE","Laios Touden · Delicious in Dungeon","Tu superpoder es la curiosidad. Te emociona probar cosas nuevas, descubrir mundos y aprender mientras exploras.",["Curioso","Aventurero","Flexible"])
 }
 st.markdown("""<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
-.stApp{background:radial-gradient(circle at 80% 10%,#233b78 0,transparent 28%),#071225;color:#f7f5ef;font-family:Inter,sans-serif}
-.block-container{max-width:1150px;padding-top:2rem}.hero{text-align:center;min-height:65vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
-.hero h1{font-family:'Space Grotesk';font-size:clamp(3.2rem,9vw,7rem);line-height:.92;letter-spacing:-.06em;background:linear-gradient(100deg,#fff,#70e7ff,#b994ff);-webkit-background-clip:text;color:transparent}
-.hero p,.muted{color:#aebbd0}.card{border:1px solid #ffffff18;background:#ffffff09;border-radius:26px;padding:1.5rem}.tag{color:#62e5ff;letter-spacing:.15em;font-size:.8rem;font-weight:800}
-.big{font-family:'Space Grotesk';font-size:4rem}.score{font-size:2rem;font-weight:800}.trait{display:inline-block;background:#ffffff10;border-radius:999px;padding:.45rem .7rem;margin:.2rem}.flow{display:flex;gap:.6rem;justify-content:center;align-items:center;flex-wrap:wrap}.node{background:#102442;padding:.8rem 1rem;border-radius:14px}
-</style>""",unsafe_allow_html=True)
+@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{--cream:#FFFDF8;--navy:#18263A;--blue:#5397C8;--sky:#80B5D7;--orange:#F19F39;--gold:#F4BD62;--muted:#53657A}
+.stApp{background:linear-gradient(135deg,var(--cream) 0%,#F7FAFC 55%,#FFF6E7 100%);color:var(--navy);font-family:'Space Grotesk',sans-serif}
+.block-container{max-width:1120px;padding-top:2rem;padding-bottom:4rem}
+h1,h2,h3,.hero h1,.big,.tag{font-family:'Martian Mono',monospace}
+h1,h2,h3{color:var(--navy)!important}
+p,li,span{color:var(--navy)}
+.hero{text-align:center;min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.hero h1{font-size:clamp(2.8rem,8vw,6.5rem);line-height:.98;letter-spacing:-.06em;color:var(--navy)!important}
+.hero p{color:var(--muted)!important;font-size:1.1rem;line-height:1.55}
+.tag{color:var(--blue)!important;letter-spacing:.12em;font-size:.75rem;font-weight:700}
+.card{border:2px solid #DCE8EF;background:rgba(255,255,255,.92);border-radius:26px;padding:1.6rem;box-shadow:0 10px 30px rgba(24,38,58,.08)}
+.big{font-size:clamp(2.4rem,6vw,4.5rem);color:var(--navy)!important}
+.score{font-family:'Martian Mono';font-size:1.8rem;font-weight:700;color:#D87810!important}
+.trait{display:inline-block;background:#EAF4FA!important;color:var(--navy)!important;border:1px solid #BFDCEC;border-radius:999px;padding:.45rem .75rem;margin:.2rem;font-weight:600}
+.flow{display:flex;gap:.6rem;justify-content:center;align-items:center;flex-wrap:wrap}
+.node{background:var(--navy)!important;color:white!important;padding:.8rem 1rem;border-radius:14px;font-family:'Martian Mono';font-size:.82rem}
+div[data-testid="stRadio"] label{background:white!important;border:2px solid #BFDCEC!important;border-radius:16px!important;padding:13px 16px!important;margin:8px 0!important;transition:.15s!important}
+div[data-testid="stRadio"] label:hover{background:#FFF4DE!important;border-color:var(--orange)!important}
+div[data-testid="stRadio"] label p{color:var(--navy)!important;font-family:'Space Grotesk',sans-serif!important;font-weight:600!important;font-size:1rem!important}
+div[data-testid="stRadio"] label:has(input:checked){background:#EAF4FA!important;border-color:var(--blue)!important;box-shadow:0 0 0 2px rgba(83,151,200,.12)!important}
+div.stButton>button,div.stDownloadButton>button{background:var(--orange)!important;color:var(--navy)!important;border:2px solid #D87810!important;border-radius:14px!important;font-family:'Martian Mono',monospace!important;font-weight:700!important;min-height:48px!important}
+div.stButton>button:hover,div.stDownloadButton>button:hover{background:var(--gold)!important;color:var(--navy)!important}
+div.stButton>button p,div.stDownloadButton>button p{color:var(--navy)!important;font-weight:700!important}
+div[data-testid="stAlert"] p{color:var(--navy)!important}
+[data-testid="stDataFrame"]{border:2px solid #DCE8EF;border-radius:16px}
+.stProgress>div>div>div>div{background:var(--blue)!important}
+hr{border-color:#DCE8EF!important}
+@media(max-width:640px){.block-container{padding-left:1rem;padding-right:1rem}.hero{min-height:55vh}.hero h1{font-size:clamp(2.3rem,12vw,4rem)}.card{padding:1.1rem}}
+</style>""
 
 @st.cache_data
 def data_and_models():
@@ -50,10 +73,26 @@ def data_and_models():
     return df,metrics,best,model,cm
 
 def card_image(profile,pct):
-    emoji,_,desc,_=INFO[profile]; img=Image.new("RGB",(1200,630),(7,18,37)); d=ImageDraw.Draw(img)
-    try: big=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",72); med=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",34)
-    except: big=med=ImageFont.load_default()
-    d.text((70,70),"¿QUÉ TIPO DE GEEK ERES?",fill=(98,229,255),font=med); d.text((70,145),f"{emoji}  {profile.upper()}",fill="white",font=big); d.text((75,250),f"{pct}% de probabilidad",fill=(169,225,255),font=med); d.text((75,330),desc[:70],fill=(185,198,217),font=med)
+    emoji,tag,character,desc,traits=INFO[profile]
+    img=Image.new("RGB",(1400,800),(255,253,248)); d=ImageDraw.Draw(img)
+    try:
+        title=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",54)
+        big=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",88)
+        med=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",34)
+    except: title=big=med=ImageFont.load_default()
+    d.rectangle((0,0,1400,18),fill=(83,151,200)); d.rectangle((0,18,1400,800),outline=(241,159,57),width=4)
+    d.text((75,70),"¿QUÉ TIPO DE GEEK ERES?",fill=(24,38,58),font=title)
+    d.text((75,170),f"{emoji}  {profile.upper()}",fill=(83,151,200),font=big)
+    d.text((80,300),f"{pct}% de probabilidad",fill=(216,120,16),font=title)
+    d.text((80,390),f"Personaje referente: {character}",fill=(24,38,58),font=med)
+    words=desc.split(); lines=[]; line=""
+    for w in words:
+        if len(line)+len(w)+1>58: lines.append(line); line=w
+        else: line=(line+" "+w).strip()
+    if line: lines.append(line)
+    y=455
+    for ln in lines[:3]: d.text((80,y),ln,fill=(83,101,122),font=med); y+=48
+    d.text((80,640),"SOFA · Prototipo académico de Ciencia de Datos",fill=(83,151,200),font=med)
     out=io.BytesIO(); img.save(out,"PNG"); out.seek(0); return out
 
 def home():
@@ -81,8 +120,8 @@ def result(df,metrics,best,model,cm):
     x=pd.DataFrame([values],columns=[f"q{i}" for i in range(1,11)])
     profile=model.predict(x)[0]; probs=model.predict_proba(x)[0]; prob=dict(zip(model.classes_,probs))
     pct=round(max(prob.values())*100)
-    emoji,tag,desc,traits=INFO[profile]
-    st.markdown(f'<div class="card"><div class="big">{emoji}</div><div class="tag">{tag}</div><div class="big">{profile.upper()}</div><div class="score">{pct}% de probabilidad</div><p>{desc}</p>'+''.join(f'<span class="trait">{t}</span>' for t in traits)+'</div>',unsafe_allow_html=True)
+    emoji,tag,character,desc,traits=INFO[profile]
+    st.markdown(f'<div class="card"><div class="big">{emoji}</div><div class="tag">{tag}</div><div class="big">{profile.upper()}</div><div class="score">{pct}% de probabilidad</div><p style="font-size:1.15rem"><strong>Personaje referente:</strong> {character}</p><p>{desc}</p>'+''.join(f'<span class="trait">{t}</span>' for t in traits)+'</div>',unsafe_allow_html=True)
     st.markdown("### Distribución de probabilidades")
     p=pd.DataFrame({"Perfil":list(prob),"Probabilidad":[v*100 for v in prob.values()]}).sort_values("Probabilidad",ascending=False)
     st.bar_chart(p.set_index("Perfil"))
