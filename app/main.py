@@ -61,7 +61,7 @@ div[data-testid="stAlert"] p{color:var(--navy)!important}
 .stProgress>div>div>div>div{background:var(--blue)!important}
 hr{border-color:#DCE8EF!important}
 @media(max-width:640px){.block-container{padding-left:1rem;padding-right:1rem}.hero{min-height:55vh}.hero h1{font-size:clamp(2.3rem,12vw,4rem)}.card{padding:1.1rem}}
-</style>""
+</style>""",unsafe_allow_html=True)
 
 @st.cache_data
 def data_and_models():
@@ -115,13 +115,30 @@ def quiz():
         else: st.session_state.q=i+1
         st.rerun()
 
+def character_card(profile):
+    emoji,tag,character,desc,traits=INFO[profile]
+    parts=character.split(" · ",1)
+    name=parts[0]
+    universe=parts[1] if len(parts)>1 else ""
+    traits_html="".join(f'<span class="trait">{t}</span>' for t in traits)
+    return f'''<div class="card" style="margin-top:1.2rem;background:linear-gradient(135deg,#FFFDF8 0%,#EAF4FA 100%);border-color:#80B5D7">
+<div class="tag">FICHA DEL PERSONAJE</div>
+<div style="display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-top:.7rem">
+<div style="font-size:5rem;line-height:1">{emoji}</div>
+<div><div class="big" style="font-size:2rem">{name}</div><div style="color:#53657A;font-weight:600">{universe}</div><div class="tag" style="margin-top:.4rem">{tag}</div></div>
+</div>
+<p style="font-size:1.05rem;line-height:1.55;margin-top:1rem">{desc}</p>
+<div>{traits_html}</div>
+</div>'''
+
 def result(df,metrics,best,model,cm):
     values=[st.session_state.answers[i] for i in range(10)]
     x=pd.DataFrame([values],columns=[f"q{i}" for i in range(1,11)])
     profile=model.predict(x)[0]; probs=model.predict_proba(x)[0]; prob=dict(zip(model.classes_,probs))
     pct=round(max(prob.values())*100)
     emoji,tag,character,desc,traits=INFO[profile]
-    st.markdown(f'<div class="card"><div class="big">{emoji}</div><div class="tag">{tag}</div><div class="big">{profile.upper()}</div><div class="score">{pct}% de probabilidad</div><p style="font-size:1.15rem"><strong>Personaje referente:</strong> {character}</p><p>{desc}</p>'+''.join(f'<span class="trait">{t}</span>' for t in traits)+'</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="card"><div class="big">{emoji}</div><div class="tag">{tag}</div><div class="big">{profile.upper()}</div><div class="score">{pct}% de probabilidad</div><p>{desc}</p>'+''.join(f'<span class="trait">{t}</span>' for t in traits)+'</div>',unsafe_allow_html=True)
+    st.markdown(character_card(profile),unsafe_allow_html=True)
     st.markdown("### Distribución de probabilidades")
     p=pd.DataFrame({"Perfil":list(prob),"Probabilidad":[v*100 for v in prob.values()]}).sort_values("Probabilidad",ascending=False)
     st.bar_chart(p.set_index("Perfil"))
