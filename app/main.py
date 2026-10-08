@@ -112,9 +112,11 @@ def technical(df,metrics,best,cm):
     st.caption("La matriz muestra dónde el modelo acierta y en qué perfiles tiende a confundirse.")
     st.markdown("### Transparencia y evolución")
     st.warning("Los datos son sintéticos y no representan científicamente a los geeks de Colombia ni a visitantes de SOFA.")
-    st.markdown("**FASE 1:** Datos sintéticos → modelo inicial  
-**FASE 2:** SOFA → respuestas reales y voluntarias  
-**FASE 3:** Evaluación → mejora del modelo")
+    st.markdown("""**FASE 1:** Datos sintéticos → modelo inicial
+
+**FASE 2:** SOFA → respuestas reales y voluntarias
+
+**FASE 3:** Evaluación → mejora del modelo""")
 
 def presentation():
     st.markdown("## 🎤 Presentación del proyecto")
