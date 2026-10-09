@@ -229,7 +229,18 @@ def result(df,metrics,best,model,cm):
     pct=round(max(prob.values())*100)
     emoji,tag,character,desc,traits=INFO[profile]
     st.markdown(f'<div class="card"><div class="big">{emoji}</div><div class="tag">{tag}</div><div class="big">{profile.upper()}</div><div class="score">{pct}% de probabilidad</div><p>{desc}</p>'+''.join(f'<span class="trait">{t}</span>' for t in traits)+'</div>',unsafe_allow_html=True)
-    st.markdown(character_card(profile),unsafe_allow_html=True)
+    card_files={
+        "Gamer":"gamer.png",
+        "Estratega":"estratega.png",
+        "Explorador":"explorador.png",
+        "Tech Geek":"tech_geek.png",
+        "Lore Master":"lore_master.png",
+        "Creador":"creador.png",
+    }
+    card_path=ROOT/"assets"/"cards"/card_files[profile]
+    card_bytes=card_path.read_bytes()
+    st.markdown("### Tu ficha geek")
+    st.image(card_bytes, caption="Tu ficha lista para guardar y compartir", use_container_width=True)
     st.markdown("### Distribución de probabilidades")
     p=pd.DataFrame({"Perfil":list(prob),"Probabilidad":[v*100 for v in prob.values()]}).sort_values("Probabilidad",ascending=False)
     st.bar_chart(p.set_index("Perfil"))
@@ -238,7 +249,7 @@ def result(df,metrics,best,model,cm):
     if a.button("🟢 Sí, totalmente",use_container_width=True): st.session_state.feedback="Sí, totalmente"
     if b.button("🔴 Nada que ver",use_container_width=True): st.session_state.feedback="Nada que ver"
     if st.session_state.get("feedback"): st.success("¡Gracias! Tu respuesta queda registrada de forma anónima en esta sesión.")
-    st.download_button("📸 Compartir mi resultado",card_image(profile,pct),file_name="mi-geek-1080x1920.png",mime="image/png",use_container_width=True)
+    st.download_button("📸 Descargar mi ficha geek",card_bytes,file_name=f"ficha-{card_files[profile]}",mime="image/png",use_container_width=True)
     st.markdown("### ¿QUÉ HAY DETRÁS?")
     st.markdown('<div class="flow"><div class="node">Tus respuestas</div>→<div class="node">Datos</div>→<div class="node">Machine Learning</div>→<div class="node">Predicción</div>→<div class="node">Tu perfil</div></div>',unsafe_allow_html=True)
     st.info("Tus respuestas se convierten en datos. El modelo analiza patrones aprendidos durante su entrenamiento y utiliza esos patrones para predecir el perfil que más se parece a tus respuestas.")
