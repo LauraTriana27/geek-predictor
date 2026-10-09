@@ -1,10 +1,9 @@
 from pathlib import Path
-import io,sys,re
+import io,sys
 import numpy as np
 import pandas as pd
 import streamlit as st
 from PIL import Image,ImageDraw,ImageFont
-import requests
 
 ROOT=Path(__file__).resolve().parents[1]; sys.path.insert(0,str(ROOT/"src"))
 from generate_data import generate_dataset,PROFILES
@@ -24,53 +23,30 @@ QUESTIONS=[
 ("¿Qué contenido podrías consumir durante horas?",["Gameplays o esports","Anime, películas o series","Arte, cosplay o creación","Estrategias, puzzles o teorías","Tecnología, IA o programación","Contenido sobre temas nuevos"]),
 ("¿Qué frase te representa más?",["Una partida más.","Necesito conocer todo el lore.","Yo podría diseñarlo mejor.","Tiene que existir una estrategia.","Quiero saber cómo funciona.","¿Qué habrá después?"])
 ]
-CHARACTER_SOURCES={
-"Gamer":"https://fd.sao-game.jp/character/detail.php?chara=kirito",
-"Estratega":"https://spy-family.net/tvseries/",
-"Tech Geek":"https://www.ytv.co.jp/heroaca/character/hatsume/",
-"Lore Master":"https://bleach-anime.com/en/character/?chara=69",
-"Creador":"https://fullmetalalchemistusa.com/character/",
-"Explorador":"https://delicious-in-dungeon.com/"
-}
-DIRECT_CHARACTER_IMAGES={
-"Explorador":"https://delicious-in-dungeon.com/assets/character/1c.png"
+SPRITE_POSITIONS={
+    "Gamer":(0,0),
+    "Estratega":(1,0),
+    "Explorador":(2,0),
+    "Tech Geek":(0,1),
+    "Lore Master":(1,1),
+    "Creador":(2,1),
 }
 
-@st.cache_data(ttl=86400,show_spinner=False)
+@st.cache_data(show_spinner=False)
 def get_character_image(profile):
+    """Extrae del sprite local la imagen que corresponde al personaje."""
+    path=ROOT/"assets"/"characters"/"sprite.webp"
     try:
-        url=DIRECT_CHARACTER_IMAGES.get(profile)
-        if not url:
-            page=requests.get(CHARACTER_SOURCES[profile],timeout=8,headers={"User-Agent":"Mozilla/5.0"}).text
-            name=INFO[profile][2].split(" · ",1)[0]
-            patterns=[
-                rf'<img[^>]+src=["\']([^"\']+)["\'][^>]*alt=["\'][^"\']*{re.escape(name)}[^"\']*["\']',
-                rf'<img[^>]+alt=["\'][^"\']*{re.escape(name)}[^"\']*["\'][^>]*src=["\']([^"\']+)["\']'
-            ]
-            match=None
-            for pattern in patterns:
-                match=re.search(pattern,page,re.I)
-                if match: break
-            if not match:
-                # Find an image URL close to the character name in the page source.
-                idx=page.lower().find(name.lower())
-                if idx>=0:
-                    window=page[max(0,idx-4000):idx+4000]
-                    match=re.search(r'<img[^>]+src=["\']([^"\']+)["\']',window,re.I)
-            if not match: return None
-            url=requests.compat.urljoin(CHARACTER_SOURCES[profile],match.group(1))
-        r=requests.get(url,timeout=10,headers={"User-Agent":"Mozilla/5.0"})
-        r.raise_for_status()
-        return r.content
-    except Exception:
+        with Image.open(path) as sheet:
+            sheet=sheet.convert("RGB")
+            col,row=SPRITE_POSITIONS.get(profile,(0,0))
+            w,h=sheet.width//3,sheet.height//2
+            crop=sheet.crop((col*w,row*h,(col+1)*w,(row+1)*h))
+            out=io.BytesIO()
+            crop.save(out,format="WEBP",quality=90,method=6)
+            return out.getvalue()
+    except (OSError,ValueError):
         return None
-
-def square_crop(image,size=520):
-    image=image.convert("RGB")
-    side=min(image.size)
-    left=(image.width-side)//2; top=(image.height-side)//2
-    image=image.crop((left,top,left+side,top+side))
-    return image.resize((size,size),Image.Resampling.LANCZOS)
 
 INFO={
 "Gamer":("🎮","PLAYER 01","Kirito · Sword Art Online","Te mueven los retos, la competencia y la emoción de superar una partida difícil.",["Competitivo","Persistente","Orientado al reto"]),
@@ -122,47 +98,70 @@ def data_and_models():
     return df,metrics,best,model,cm
 
 def card_image(profile,pct):
+    """Tarjeta vertical 1080x1920 estilo carta coleccionable."""
     emoji,tag,character,desc,traits=INFO[profile]
-    img=Image.new("RGB",(1600,1000),(255,253,248)); d=ImageDraw.Draw(img)
+    W,H=1080,1920
+    navy=(24,38,58); blue=(83,151,200); sky=(128,181,215)
+    cream=(255,253,248); orange=(241,159,57); muted=(83,101,122)
+    img=Image.new("RGB",(W,H),cream); d=ImageDraw.Draw(img)
     try:
-        title=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",42)
-        big=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",68)
+        title=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",34)
+        hero=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",64)
+        namefont=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",43)
         med=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",30)
-        small=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",22)
-    except: title=big=med=small=ImageFont.load_default()
-    d.rectangle((0,0,1600,18),fill=(83,151,200))
-    d.rectangle((18,18,1582,982),outline=(241,159,57),width=4)
-    # Image panel
-    raw=get_character_image(profile)
+        small=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",25)
+    except OSError:
+        title=hero=namefont=med=small=ImageFont.load_default()
+    d.rectangle((0,0,W,24),fill=blue)
+    d.rectangle((22,22,W-22,H-22),outline=orange,width=5)
+    d.rounded_rectangle((42,42,W-42,H-42),radius=34,fill=(247,250,252),outline=sky,width=4)
+    d.text((76,75),"SOFA  /  GEEK ID",font=title,fill=blue)
+    d.text((76,133),"TU PERFIL GEEK",font=small,fill=muted)
+    d.rounded_rectangle((76,188,W-76,270),radius=22,fill=navy)
+    d.text((108,207),profile.upper(),font=hero,fill=cream)
+    raw=get_character_image(profile); photo_box=(76,310,W-76,1170)
+    d.rounded_rectangle(photo_box,radius=28,fill=(230,239,246),outline=blue,width=6)
     if raw:
         try:
-            import PIL.Image
-            char_img=square_crop(Image.open(io.BytesIO(raw)),520)
-            img.paste(char_img,(80,220))
-            d.rectangle((80,220,600,740),outline=(128,181,215),width=6)
+            char_img=Image.open(io.BytesIO(raw)).convert("RGB")
+            tw=photo_box[2]-photo_box[0]-16; th=photo_box[3]-photo_box[1]-16
+            scale=max(tw/char_img.width,th/char_img.height)
+            char_img=char_img.resize((int(char_img.width*scale),int(char_img.height*scale)),Image.Resampling.LANCZOS)
+            left=(char_img.width-tw)//2; top=(char_img.height-th)//2
+            char_img=char_img.crop((left,top,left+tw,top+th))
+            mask=Image.new("L",char_img.size,0)
+            ImageDraw.Draw(mask).rounded_rectangle((0,0,tw-1,th-1),radius=22,fill=255)
+            img.paste(char_img,(photo_box[0]+8,photo_box[1]+8),mask)
         except Exception:
-            raw=None
-    if not raw:
-        d.rounded_rectangle((80,220,600,740),radius=30,fill=(234,244,250),outline=(128,181,215),width=5)
-        d.text((285,420),emoji,fill=(24,38,58),font=big)
-    d.text((80,70),"¿QUÉ TIPO DE GEEK ERES?",fill=(24,38,58),font=title)
-    d.text((680,190),profile.upper(),fill=(83,151,200),font=big)
-    d.text((680,285),f"{pct}% de probabilidad",fill=(216,120,16),font=title)
+            d.text((W//2-30,660),emoji,font=hero,fill=navy)
+    else: d.text((W//2-30,660),emoji,font=hero,fill=navy)
     parts=character.split(" · ",1); name=parts[0]; universe=parts[1] if len(parts)>1 else ""
-    d.text((680,385),name,fill=(24,38,58),font=big)
-    d.text((680,465),universe,fill=(83,101,122),font=med)
-    d.text((680,540),tag,fill=(83,151,200),font=title)
-    words=desc.split(); lines=[]; line=""
-    for w in words:
-        if len(line)+len(w)+1>48: lines.append(line); line=w
-        else: line=(line+" "+w).strip()
+    d.text((76,1210),"PERSONAJE REFERENTE",font=small,fill=blue)
+    d.text((76,1260),name,font=namefont,fill=navy)
+    d.text((76,1320),universe,font=med,fill=muted)
+    d.rounded_rectangle((76,1380,W-76,1505),radius=24,fill=(255,242,220),outline=orange,width=3)
+    d.text((108,1398),"COMPATIBILIDAD CON TU PERFIL",font=small,fill=muted)
+    d.text((108,1438),f"{pct}% de probabilidad",font=hero,fill=navy)
+    d.text((76,1540),"ASÍ ES TU ESTILO",font=small,fill=blue)
+    lines=[]; line=""
+    for word in desc.split():
+        candidate=(line+" "+word).strip()
+        if d.textbbox((0,0),candidate,font=med)[2]>W-152:
+            if line: lines.append(line)
+            line=word
+        else: line=candidate
     if line: lines.append(line)
-    y=610
-    for ln in lines[:3]: d.text((680,y),ln,fill=(24,38,58),font=med); y+=42
-    d.text((680,770),"  •  ".join(traits),fill=(83,101,122),font=small)
-    d.text((80,900),"SOFA · Prototipo académico de Ciencia de Datos",fill=(83,151,200),font=small)
+    y=1585
+    for line in lines[:3]:
+        d.text((76,y),line,font=med,fill=navy); y+=43
+    chip_y=1740; x=76
+    for trait in traits:
+        tw=d.textbbox((0,0),trait,font=small)[2]+34
+        if x+tw>W-76: chip_y+=62; x=76
+        d.rounded_rectangle((x,chip_y,x+tw,chip_y+46),radius=18,fill=(234,244,250),outline=sky,width=2)
+        d.text((x+17,chip_y+8),trait,font=small,fill=navy); x+=tw+14
+    d.text((76,1840),"PROTOTIPO ACADÉMICO · DATOS SINTÉTICOS",font=small,fill=muted)
     out=io.BytesIO(); img.save(out,"PNG",optimize=True); out.seek(0); return out
-
 
 def character_card(profile):
     emoji,tag,character,desc,traits=INFO[profile]
@@ -225,7 +224,7 @@ def result(df,metrics,best,model,cm):
     if a.button("🟢 Sí, totalmente",use_container_width=True): st.session_state.feedback="Sí, totalmente"
     if b.button("🔴 Nada que ver",use_container_width=True): st.session_state.feedback="Nada que ver"
     if st.session_state.get("feedback"): st.success("¡Gracias! Tu respuesta queda registrada de forma anónima en esta sesión.")
-    st.download_button("📸 Compartir mi resultado",card_image(profile,pct),file_name="mi-geek.png",mime="image/png",use_container_width=True)
+    st.download_button("📸 Compartir mi resultado",card_image(profile,pct),file_name="mi-geek-1080x1920.png",mime="image/png",use_container_width=True)
     st.markdown("### ¿QUÉ HAY DETRÁS?")
     st.markdown('<div class="flow"><div class="node">Tus respuestas</div>→<div class="node">Datos</div>→<div class="node">Machine Learning</div>→<div class="node">Predicción</div>→<div class="node">Tu perfil</div></div>',unsafe_allow_html=True)
     st.info("Tus respuestas se convierten en datos. El modelo analiza patrones aprendidos durante su entrenamiento y utiliza esos patrones para predecir el perfil que más se parece a tus respuestas.")
