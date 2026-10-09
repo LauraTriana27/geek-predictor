@@ -1,5 +1,5 @@
 from pathlib import Path
-import io,sys,re
+import io,sys
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -24,45 +24,22 @@ QUESTIONS=[
 ("¿Qué contenido podrías consumir durante horas?",["Gameplays o esports","Anime, películas o series","Arte, cosplay o creación","Estrategias, puzzles o teorías","Tecnología, IA o programación","Contenido sobre temas nuevos"]),
 ("¿Qué frase te representa más?",["Una partida más.","Necesito conocer todo el lore.","Yo podría diseñarlo mejor.","Tiene que existir una estrategia.","Quiero saber cómo funciona.","¿Qué habrá después?"])
 ]
-CHARACTER_SOURCES={
-"Gamer":"https://fd.sao-game.jp/character/detail.php?chara=kirito",
-"Estratega":"https://spy-family.net/tvseries/",
-"Tech Geek":"https://www.ytv.co.jp/heroaca/character/hatsume/",
-"Lore Master":"https://bleach-anime.com/en/character/?chara=69",
-"Creador":"https://fullmetalalchemistusa.com/character/",
-"Explorador":"https://delicious-in-dungeon.com/"
-}
-DIRECT_CHARACTER_IMAGES={
-"Explorador":"https://delicious-in-dungeon.com/assets/character/1c.png"
+CHARACTER_FILES={
+    "Gamer":"kirito.webp",
+    "Estratega":"loid.webp",
+    "Explorador":"laios.webp",
+    "Tech Geek":"mei.webp",
+    "Lore Master":"aizen.webp",
+    "Creador":"father.webp",
 }
 
-@st.cache_data(ttl=86400,show_spinner=False)
+@st.cache_data(show_spinner=False)
 def get_character_image(profile):
+    """Carga imágenes incluidas en el repositorio; no depende de enlaces externos."""
+    path=ROOT/"assets"/"characters"/CHARACTER_FILES.get(profile,"")
     try:
-        url=DIRECT_CHARACTER_IMAGES.get(profile)
-        if not url:
-            page=requests.get(CHARACTER_SOURCES[profile],timeout=8,headers={"User-Agent":"Mozilla/5.0"}).text
-            name=INFO[profile][2].split(" · ",1)[0]
-            patterns=[
-                rf'<img[^>]+src=["\']([^"\']+)["\'][^>]*alt=["\'][^"\']*{re.escape(name)}[^"\']*["\']',
-                rf'<img[^>]+alt=["\'][^"\']*{re.escape(name)}[^"\']*["\'][^>]*src=["\']([^"\']+)["\']'
-            ]
-            match=None
-            for pattern in patterns:
-                match=re.search(pattern,page,re.I)
-                if match: break
-            if not match:
-                # Find an image URL close to the character name in the page source.
-                idx=page.lower().find(name.lower())
-                if idx>=0:
-                    window=page[max(0,idx-4000):idx+4000]
-                    match=re.search(r'<img[^>]+src=["\']([^"\']+)["\']',window,re.I)
-            if not match: return None
-            url=requests.compat.urljoin(CHARACTER_SOURCES[profile],match.group(1))
-        r=requests.get(url,timeout=10,headers={"User-Agent":"Mozilla/5.0"})
-        r.raise_for_status()
-        return r.content
-    except Exception:
+        return path.read_bytes() if path.is_file() else None
+    except OSError:
         return None
 
 def square_crop(image,size=520):
@@ -172,7 +149,7 @@ def character_card(profile):
     image_html=""
     if raw:
         import base64
-        image_html=f'<img src="data:image/jpeg;base64,{base64.b64encode(raw).decode()}" style="width:240px;height:240px;object-fit:cover;border-radius:22px;border:4px solid #80B5D7;box-shadow:0 8px 24px rgba(24,38,58,.14)">'
+        image_html=f'<img src="data:image/webp;base64,{base64.b64encode(raw).decode()}" style="width:240px;height:240px;object-fit:cover;border-radius:22px;border:4px solid #80B5D7;box-shadow:0 8px 24px rgba(24,38,58,.14)">'
     else:
         image_html=f'<div style="width:240px;height:240px;border-radius:22px;background:#EAF4FA;border:4px solid #80B5D7;display:flex;align-items:center;justify-content:center;font-size:6rem">{emoji}</div>'
     return f'''<div class="card" style="margin-top:1.2rem;background:linear-gradient(135deg,#FFFDF8 0%,#EAF4FA 100%);border-color:#80B5D7">
