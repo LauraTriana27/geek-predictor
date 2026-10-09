@@ -239,8 +239,7 @@ def result(df,metrics,best,model,cm):
     }
     card_path=ROOT/"assets"/"cards"/card_files[profile]
     card_bytes=card_path.read_bytes()
-    st.markdown("### Tu ficha geek")
-    st.image(card_bytes, caption="Tu ficha lista para guardar y compartir", use_container_width=True)
+    st.markdown(character_card(profile),unsafe_allow_html=True)
     st.markdown("### Distribución de probabilidades")
     p=pd.DataFrame({"Perfil":list(prob),"Probabilidad":[v*100 for v in prob.values()]}).sort_values("Probabilidad",ascending=False)
     st.bar_chart(p.set_index("Perfil"))
